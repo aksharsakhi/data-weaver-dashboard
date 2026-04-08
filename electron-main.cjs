@@ -9,23 +9,24 @@ let mainWindow = null;
 let backendProcess = null;
 
 // ── Determine correct paths for packaged vs dev ───────────────────────────
-function getBackendDir() {
-  if (isDev) {
-    return path.join(__dirname, 'backend');
-  }
-  // In packaged app, resources are under process.resourcesPath
+function getOriginalBackendDir() {
+  if (isDev) return path.join(__dirname, 'backend');
   return path.join(process.resourcesPath, 'backend');
 }
 
+function getActiveBackendDir() {
+  if (isDev) return path.join(__dirname, 'backend');
+  return path.join(app.getPath('userData'), 'backend_runtime');
+}
+
 function getPythonPath() {
-  const backendDir = getBackendDir();
+  const backendDir = getActiveBackendDir();
   if (process.platform === 'win32') {
-    // Try embedded Python first (shipped with the app), then venv, then system
     const embedded = path.join(backendDir, 'python', 'python.exe');
     const venv     = path.join(backendDir, 'venv', 'Scripts', 'python.exe');
     if (fs.existsSync(embedded)) return embedded;
     if (fs.existsSync(venv))     return venv;
-    return 'python';           // fall back to system python
+    return 'python';           
   } else {
     const venv = path.join(backendDir, 'venv', 'bin', 'python3');
     if (fs.existsSync(venv)) return venv;
@@ -35,9 +36,17 @@ function getPythonPath() {
 
 function ensureBackendSetup() {
   return new Promise((resolve, reject) => {
-    const backendDir = getBackendDir();
-    const venvDir = path.join(backendDir, 'venv');
-    const requirementsPath = path.join(backendDir, 'requirements.txt');
+    const activeDir = getActiveBackendDir();
+    const originalDir = getOriginalBackendDir();
+    
+    // Copy Backend resources securely to writable User Data area if not present
+    if (!fs.existsSync(activeDir) && !isDev) {
+      console.log(`[Setup] Copying backend runtime into ${activeDir}`);
+      fs.cpSync(originalDir, activeDir, { recursive: true });
+    }
+
+    const venvDir = path.join(activeDir, 'venv');
+    const requirementsPath = path.join(activeDir, 'requirements.txt');
     
     if (fs.existsSync(venvDir)) {
       resolve(); // Already setup
@@ -61,10 +70,25 @@ function ensureBackendSetup() {
       </body>
     `);
 
-    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    // Resolve Python command aggressively because Mac GUI apps don't inherit full $PATH
+    let pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    if (process.platform === 'darwin') {
+      const macPaths = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', '/usr/bin/python3'];
+      for (const p of macPaths) {
+        if (fs.existsSync(p)) {
+          pythonCmd = p;
+          break;
+        }
+      }
+    }
     
     // 1. Create venv
-    const setupProcess = spawn(pythonCmd, ['-m', 'venv', 'venv'], { cwd: backendDir });
+    const setupProcess = spawn(pythonCmd, ['-m', 'venv', 'venv'], { cwd: activeDir });
+    setupProcess.on('error', (err) => {
+      dialog.showErrorBox("Setup Execution Failed", `Could not launch Python for installation: ${err.message}`);
+      if (loadingWindow) loadingWindow.close();
+      reject(err);
+    });
     setupProcess.on('close', (code) => {
       if (code !== 0) {
         dialog.showErrorBox("Setup Failed", "Failed to create Python environment. Is Python 3 installed?");
@@ -77,7 +101,12 @@ function ensureBackendSetup() {
       const pipCmd = process.platform === 'win32' ? path.join('venv', 'Scripts', 'pip') : path.join('venv', 'bin', 'pip');
       
       // 2. Install requirements
-      const installProcess = spawn(pipCmd, ['install', '-r', 'requirements.txt'], { cwd: backendDir });
+      const installProcess = spawn(pipCmd, ['install', '-r', 'requirements.txt'], { cwd: activeDir });
+      installProcess.on('error', (err) => {
+        dialog.showErrorBox("Setup Execution Failed", `Could not launch Pip for installation: ${err.message}`);
+        if (loadingWindow) loadingWindow.close();
+        reject(err);
+      });
       installProcess.on('close', (pipCode) => {
         if (loadingWindow) loadingWindow.close();
         if (pipCode !== 0) {
@@ -95,15 +124,16 @@ function ensureBackendSetup() {
 // ── Start FastAPI backend ────────────────────────────────────────────────
 function startBackend() {
   const pythonPath = getPythonPath();
-  const backendDir = getBackendDir();
+  const activeDir = getActiveBackendDir();
 
-  console.log(`[Electron] Starting backend: ${pythonPath} in ${backendDir}`);
+  // If previous port 8000 hangs exist, relying on localhost
+  console.log(`[Electron] Starting backend: ${pythonPath} in ${activeDir}`);
 
   backendProcess = spawn(pythonPath, ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', '8000'], {
-    cwd: backendDir,
+    cwd: activeDir,
     env: {
       ...process.env,
-      PYTHONPATH: backendDir,
+      PYTHONPATH: activeDir,
       PYTHONUNBUFFERED: '1',
     },
   });
@@ -118,6 +148,7 @@ function startBackend() {
   });
 
   backendProcess.on('error', (err) => {
+    dialog.showErrorBox("Backend Process Error", `Message: ${err.message}`);
     console.error(`[Backend] Failed to start: ${err.message}`);
   });
 
@@ -197,7 +228,8 @@ app.whenReady().then(async () => {
       await ensureBackendSetup();
     }
   } catch (err) {
-    console.error("Setup aborted.");
+    dialog.showErrorBox("Critical Setup Error", `Error: ${err.message}`);
+    console.error("Setup aborted.", err);
   }
   
   // Start backend unless already running (e.g. dev mode with separate process)
