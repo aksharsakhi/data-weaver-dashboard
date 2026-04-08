@@ -1,27 +1,37 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PlusCircle, Activity, LayoutDashboard, Database } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="glass-panel card animate-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2>Welcome to Data Weaver</h2>
+    <div className="card animate-in">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <LayoutDashboard size={28} color="var(--primary)" /> Operational Dashboard
+        </h2>
         <button className="btn btn-primary" onClick={() => navigate('/configure')}>
-          Start New Session
+          <PlusCircle size={20} /> Create Extraction Session
         </button>
       </div>
 
-      <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-        Select "Start New Session" to begin extracting data from your folders.
+      <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '1.1rem' }}>
+        Monitor automated document extraction workflows and enterprise AI inference sessions.
       </p>
 
-      {/* Placeholder for actual past sessions list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ padding: '20px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border)'}}>
-             <h4 style={{ color: 'var(--text-muted)' }}>No recent sessions found</h4>
-             <p style={{ fontSize: '0.875rem' }}>Start your first extraction session to see results here.</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+          <div className="card" style={{ background: 'rgba(255,255,255,0.02)', margin: 0, padding: '24px' }}>
+             <h4 style={{ color: 'var(--primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                 <Activity size={18} /> Current Session Status
+             </h4>
+             <p className="text-muted">No active extraction jobs detected.</p>
+          </div>
+          <div className="card" style={{ background: 'rgba(255,255,255,0.02)', margin: 0, padding: '24px' }}>
+             <h4 style={{ color: 'var(--primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                 <Database size={18} /> Data Pipeline Summary
+             </h4>
+             <p className="text-muted">Initiate your first session to populate historical metrics.</p>
           </div>
       </div>
     </div>
