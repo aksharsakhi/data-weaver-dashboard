@@ -11,7 +11,9 @@ from ..core.database import get_db
 from ..models.models import ExtractionSession, ExtractionTask, ExtractionResult, SessionStatus, TaskStatus
 from ..models.schemas import SessionCreate, SessionOut, ProgressStatus, ExtractionResultOut
 from ..worker.tasks import process_subfolder_background
+from ..core.config import settings
 import httpx
+from sqlalchemy.orm import selectinload
 
 router = APIRouter()
 
@@ -133,6 +135,30 @@ async def download_excel(session_id: int, db: AsyncSession = Depends(get_db)):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename=results_session_{session_id}.xlsx"}
     )
+
+@router.get("/list")
+async def list_sessions(db: AsyncSession = Depends(get_db)):
+    """Fetch all extraction sessions with their task progress."""
+    result = await db.execute(
+        select(ExtractionSession)
+        .options(selectinload(ExtractionSession.tasks))
+        .order_by(ExtractionSession.created_at.desc())
+    )
+    sessions = result.scalars().all()
+    
+    formatted_sessions = []
+    for s in sessions:
+        total = len(s.tasks)
+        completed = sum(1 for t in s.tasks if t.status == TaskStatus.COMPLETED)
+        formatted_sessions.append({
+            "id": s.id,
+            "name": s.name,
+            "status": s.status,
+            "total_tasks": total,
+            "completed_tasks": completed,
+            "created_at": s.created_at.isoformat() if s.created_at else None
+        })
+    return formatted_sessions
 
 @router.get("/models")
 async def get_local_models():
