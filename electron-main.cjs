@@ -33,6 +33,65 @@ function getPythonPath() {
   }
 }
 
+function ensureBackendSetup() {
+  return new Promise((resolve, reject) => {
+    const backendDir = getBackendDir();
+    const venvDir = path.join(backendDir, 'venv');
+    const requirementsPath = path.join(backendDir, 'requirements.txt');
+    
+    if (fs.existsSync(venvDir)) {
+      resolve(); // Already setup
+      return;
+    }
+
+    console.log('[Setup] First run detected. Creating virtual environment...');
+    
+    // Create a simple loading window
+    let loadingWindow = new BrowserWindow({
+      width: 400, height: 250, frame: false, alwaysOnTop: true,
+      webPreferences: { nodeIntegration: true }
+    });
+    loadingWindow.loadURL(`data:text/html,
+      <body style="font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; background: %2308080A; color: white;">
+        <h3 style="color: %23BC3F00;">Data Weaver</h3>
+        <p>Initializing AI Runtime on first launch...</p>
+        <p style="font-size: 12px; color: %23808090;">Downloading local dependencies (may take a minute)</p>
+        <div style="margin-top: 10px; width: 50px; height: 50px; border: 4px solid %23BC3F00; border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+      </body>
+    `);
+
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    
+    // 1. Create venv
+    const setupProcess = spawn(pythonCmd, ['-m', 'venv', 'venv'], { cwd: backendDir });
+    setupProcess.on('close', (code) => {
+      if (code !== 0) {
+        dialog.showErrorBox("Setup Failed", "Failed to create Python environment. Is Python 3 installed?");
+        if (loadingWindow) loadingWindow.close();
+        reject();
+        return;
+      }
+      
+      console.log('[Setup] Installing requirements...');
+      const pipCmd = process.platform === 'win32' ? path.join('venv', 'Scripts', 'pip') : path.join('venv', 'bin', 'pip');
+      
+      // 2. Install requirements
+      const installProcess = spawn(pipCmd, ['install', '-r', 'requirements.txt'], { cwd: backendDir });
+      installProcess.on('close', (pipCode) => {
+        if (loadingWindow) loadingWindow.close();
+        if (pipCode !== 0) {
+          dialog.showErrorBox("Setup Failed", "Failed to install dependencies.");
+          reject();
+        } else {
+          console.log('[Setup] Dependencies installed successfully.');
+          resolve();
+        }
+      });
+    });
+  });
+}
+
 // ── Start FastAPI backend ────────────────────────────────────────────────
 function startBackend() {
   const pythonPath = getPythonPath();
@@ -54,7 +113,6 @@ function startBackend() {
   });
 
   backendProcess.stderr.on('data', (data) => {
-    // uvicorn logs to stderr by default — not an error
     const msg = data.toString().trim();
     if (msg) console.log(`[Backend] ${msg}`);
   });
@@ -101,7 +159,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     backgroundColor: '#08080A',
@@ -134,6 +192,14 @@ function createWindow() {
 
 // ── App lifecycle ────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
+  try {
+    if (!isDev) {
+      await ensureBackendSetup();
+    }
+  } catch (err) {
+    console.error("Setup aborted.");
+  }
+  
   // Start backend unless already running (e.g. dev mode with separate process)
   startBackend();
 
