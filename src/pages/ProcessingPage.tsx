@@ -94,8 +94,8 @@ export default function ProcessingPage() {
                       folder.status === "completed"
                         ? "default"
                         : folder.status === "error"
-                        ? "destructive"
-                        : "secondary"
+                          ? "destructive"
+                          : "secondary"
                     }
                   >
                     {folder.status}
@@ -120,8 +120,8 @@ export default function ProcessingPage() {
                       line.includes("✓")
                         ? "text-success"
                         : line.includes("⟳")
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                          ? "text-primary"
+                          : "text-muted-foreground"
                     }
                   >
                     {line}

@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+sqlalchemy
+asyncpg
+celery
+redis
+httpx
+python-docx
+pymupdf
+pandas
+openpyxl
+python-multipart
+python-dotenv
+alembic
