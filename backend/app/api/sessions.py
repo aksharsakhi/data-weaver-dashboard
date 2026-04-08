@@ -10,13 +10,15 @@ from fastapi.responses import StreamingResponse
 from ..core.database import get_db
 from ..models.models import ExtractionSession, ExtractionTask, ExtractionResult, SessionStatus, TaskStatus
 from ..models.schemas import SessionCreate, SessionOut, ProgressStatus, ExtractionResultOut
-from ..worker.tasks import process_subfolder_task
+from ..worker.tasks import process_subfolder_background
+import httpx
 
 router = APIRouter()
 
 @router.post("/start", response_model=SessionOut)
 async def start_session(
     session_data: SessionCreate,
+    background_tasks: BackgroundTasks,
     api_key: str = None, # Optional API key passed from header or query
     db: AsyncSession = Depends(get_db)
 ):
@@ -55,8 +57,9 @@ async def start_session(
         db.add(new_task)
         await db.flush()
         
-        # Dispatch Celery task
-        process_subfolder_task.delay(
+        # Dispatch FastAPI background task instead of Celery for seamless Desktop execution
+        background_tasks.add_task(
+            process_subfolder_background,
             subfolder,
             new_session.id,
             new_task.id,
@@ -130,3 +133,19 @@ async def download_excel(session_id: int, db: AsyncSession = Depends(get_db)):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename=results_session_{session_id}.xlsx"}
     )
+
+@router.get("/models")
+async def get_local_models():
+    """Fetch locally installed AI models from Ollama."""
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            response = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")
+            if response.status_code == 200:
+                data = response.json()
+                models = [m["name"] for m in data.get("models", [])]
+                return {"models": models}
+    except Exception:
+        pass # Ollama offline or not installed
+    
+    return {"models": []}
+

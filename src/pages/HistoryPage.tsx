@@ -30,12 +30,12 @@ import { Eye, Download, RotateCcw, Search, CalendarIcon, X } from "lucide-react"
 import { cn } from "@/lib/utils";
 
 const sessions = [
-  { id: 1, name: "Vehicle Registration Batch 13", model: "LLaMA 3", files: 51, success: 48, status: "completed", date: "2026-04-07" },
-  { id: 2, name: "Vehicle Registration Batch 12", model: "Mistral", files: 45, success: 45, status: "completed", date: "2026-04-06" },
-  { id: 3, name: "Insurance Claims Q1", model: "Mixtral", files: 128, success: 120, status: "completed", date: "2026-04-05" },
-  { id: 4, name: "Title Deeds March", model: "LLaMA 3", files: 32, success: 32, status: "completed", date: "2026-04-04" },
-  { id: 5, name: "License Renewals", model: "Mistral", files: 67, success: 52, status: "error", date: "2026-04-03" },
-  { id: 6, name: "Court Orders Feb", model: "LLaMA 3", files: 23, success: 23, status: "completed", date: "2026-03-28" },
+  { id: 1, name: "Brake Test Cert — Batch 2024-01", model: "LLaMA 3", files: 8, success: 7, status: "completed", date: "2026-04-07" },
+  { id: 2, name: "Brake Test Cert — Batch 2024-02", model: "Mistral", files: 12, success: 12, status: "completed", date: "2026-04-06" },
+  { id: 3, name: "Brake Test Cert — Batch 2023-Q4", model: "Mixtral", files: 20, success: 19, status: "completed", date: "2026-04-05" },
+  { id: 4, name: "Brake Test Cert — Batch 2023-Q3", model: "LLaMA 3", files: 15, success: 15, status: "completed", date: "2026-04-04" },
+  { id: 5, name: "Brake Test Cert — Batch 2023-Q3 Retake", model: "Mistral", files: 5, success: 3, status: "error", date: "2026-04-03" },
+  { id: 6, name: "Brake Test Cert — Batch 2023-Q2", model: "LLaMA 3", files: 18, success: 18, status: "completed", date: "2026-03-28" },
 ];
 
 export default function HistoryPage() {

@@ -6,10 +6,10 @@ import { StatCard } from "@/components/StatCard";
 import { Plus, FileText, CheckCircle, BarChart3, Clock } from "lucide-react";
 
 const recentSessions = [
-  { id: 1, name: "Vehicle Registration Batch 12", files: 45, status: "completed", date: "2026-04-07" },
-  { id: 2, name: "Insurance Claims Q1", files: 128, status: "processing", date: "2026-04-06" },
-  { id: 3, name: "Title Deeds March", files: 32, status: "completed", date: "2026-04-05" },
-  { id: 4, name: "License Renewals", files: 67, status: "error", date: "2026-04-04" },
+  { id: 1, name: "Brake Test Cert — Batch 2024-01", files: 8, status: "completed", date: "2026-04-07" },
+  { id: 2, name: "Brake Test Cert — Batch 2024-02", files: 12, status: "processing", date: "2026-04-06" },
+  { id: 3, name: "Brake Test Cert — Batch 2023-Q4", files: 20, status: "completed", date: "2026-04-05" },
+  { id: 4, name: "Brake Test Cert — Batch 2023-Q3 Retake", files: 5, status: "error", date: "2026-04-04" },
 ];
 
 const statusVariant = (s: string) =>

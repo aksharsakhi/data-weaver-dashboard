@@ -18,8 +18,8 @@ const Settings = () => {
   };
 
   return (
-    <div className="card animate-in" style={{ maxWidth: '700px' }}>
-      <header style={{ marginBottom: '40px' }}>
+    <div className="card animate-in" style={{ width: '100%' }}>
+      <header style={{ marginBottom: '36px' }}>
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             System Administration
         </h2>

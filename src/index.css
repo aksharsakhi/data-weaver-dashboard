@@ -217,3 +217,70 @@ td:last-child { border-right: 1px solid var(--border); border-radius: 0 12px 12p
   border-radius: 12px;
   margin-bottom: 10px;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    z-index: 10;
+  }
+  
+  .sidebar-logo {
+    margin-bottom: 0;
+  }
+  
+  .nav-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  .nav-item {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-item {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+  .sidebar-logo {
+    font-size: 1.3rem;
+  }
+}

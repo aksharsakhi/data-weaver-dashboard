@@ -1,5 +1,4 @@
 import asyncio
-from .celery_app import celery_app
 from ..models.models import ExtractionSession, ExtractionTask, ExtractionResult, TaskStatus, SessionStatus
 from ..core.database import AsyncSessionLocal
 from sqlalchemy import select, update
@@ -8,11 +7,7 @@ from ..services.llm_service import OllamaProvider, OpenAICompatibleProvider
 from ..core.config import settings
 import os
 
-@celery_app.task(name="process_subfolder_task")
-def process_subfolder_task(subfolder_path, session_id, task_id, fields, model_name, api_key=None):
-    return asyncio.run(_process_subfolder_task(subfolder_path, session_id, task_id, fields, model_name, api_key))
-
-async def _process_subfolder_task(subfolder_path, session_id, task_id, fields, model_name, api_key):
+async def process_subfolder_background(subfolder_path, session_id, task_id, fields, model_name, api_key):
     async with AsyncSessionLocal() as db:
         # Update status to processing
         await db.execute(

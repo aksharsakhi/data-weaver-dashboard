@@ -10,36 +10,281 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const sampleRows = [
-  { file: "registration_001.pdf", vehicle: "KA-01-AB-1234", engine: "ENG20240012", owner: "Rajesh Kumar", status: "success" },
-  { file: "registration_002.pdf", vehicle: "KA-02-CD-5678", engine: "ENG20240034", owner: "Priya Sharma", status: "success" },
-  { file: "registration_003.pdf", vehicle: "MH-12-EF-9012", engine: "ENG20240056", owner: "Amit Patel", status: "success" },
-  { file: "insurance_001.pdf", vehicle: "DL-05-GH-3456", engine: "ENG20240078", owner: "Sunita Devi", status: "success" },
-  { file: "title_002.pdf", vehicle: "—", engine: "—", owner: "—", status: "failed" },
-  { file: "insurance_002.docx", vehicle: "TN-09-IJ-7890", engine: "ENG20240090", owner: "Vikram Singh", status: "success" },
-  { file: "registration_004.pdf", vehicle: "AP-28-KL-2345", engine: "ENG20240101", owner: "Meena Reddy", status: "success" },
-  { file: "registration_005.pdf", vehicle: "GJ-01-MN-6789", engine: "ENG20240115", owner: "Kiran Shah", status: "success" },
+interface ExtractionRow {
+  srNo: number;
+  vcNumber: string;
+  vehicleDescription: string;
+  baseVc: string;
+  vehicleDetails: string;
+  noOfGears: string;
+  wheelBase: string;
+  maxSpeed: string;
+  abs: string;
+  pedalForce: string;
+  lrBalanceFront: string;
+  cruiseControl: string;
+  normalBrakeForeFront: string;
+  normalBrakeForceRear: string;
+  wheelDragForceFront: string;
+  wheelDragForceRear: string;
+  parkingBrakeForce: string;
+  addedBy: string;
+  date: string;
+  status: "success" | "failed";
+  sourceFile: string;
+}
+
+const sampleRows: ExtractionRow[] = [
+  {
+    srNo: 1,
+    vcNumber: "VC-2024-001",
+    vehicleDescription: "Tata Nexon EV Max",
+    baseVc: "BVC-NEX-001",
+    vehicleDetails: "12V",
+    noOfGears: "1 (Single Speed)",
+    wheelBase: "2498 mm",
+    maxSpeed: "120",
+    abs: "Yes",
+    pedalForce: "245",
+    lrBalanceFront: "60/40",
+    cruiseControl: "Yes",
+    normalBrakeForeFront: "3800",
+    normalBrakeForceRear: "2100",
+    wheelDragForceFront: "180",
+    wheelDragForceRear: "120",
+    parkingBrakeForce: "4500",
+    addedBy: "R. Sharma",
+    date: "2026-04-07",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC001.pdf",
+  },
+  {
+    srNo: 2,
+    vcNumber: "VC-2024-002",
+    vehicleDescription: "Mahindra XUV700 AWD",
+    baseVc: "BVC-XUV-002",
+    vehicleDetails: "12V",
+    noOfGears: "6",
+    wheelBase: "2750 mm",
+    maxSpeed: "200",
+    abs: "Yes",
+    pedalForce: "310",
+    lrBalanceFront: "58/42",
+    cruiseControl: "Yes",
+    normalBrakeForeFront: "4200",
+    normalBrakeForceRear: "2600",
+    wheelDragForceFront: "210",
+    wheelDragForceRear: "145",
+    parkingBrakeForce: "5200",
+    addedBy: "A. Patel",
+    date: "2026-04-07",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC002.pdf",
+  },
+  {
+    srNo: 3,
+    vcNumber: "VC-2024-003",
+    vehicleDescription: "Ashok Leyland BOSS 1615",
+    baseVc: "BVC-AL-003",
+    vehicleDetails: "24V",
+    noOfGears: "9",
+    wheelBase: "4200 mm",
+    maxSpeed: "95",
+    abs: "Yes",
+    pedalForce: "520",
+    lrBalanceFront: "35/65",
+    cruiseControl: "No",
+    normalBrakeForeFront: "8500",
+    normalBrakeForceRear: "12000",
+    wheelDragForceFront: "380",
+    wheelDragForceRear: "540",
+    parkingBrakeForce: "14000",
+    addedBy: "V. Reddy",
+    date: "2026-04-06",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC003.pdf",
+  },
+  {
+    srNo: 4,
+    vcNumber: "VC-2024-004",
+    vehicleDescription: "TATA Signa 4825.TK",
+    baseVc: "BVC-TSG-004",
+    vehicleDetails: "24V",
+    noOfGears: "12",
+    wheelBase: "5200 mm",
+    maxSpeed: "80",
+    abs: "Yes",
+    pedalForce: "680",
+    lrBalanceFront: "28/72",
+    cruiseControl: "No",
+    normalBrakeForeFront: "10200",
+    normalBrakeForceRear: "18500",
+    wheelDragForceFront: "450",
+    wheelDragForceRear: "820",
+    parkingBrakeForce: "21000",
+    addedBy: "S. Kumar",
+    date: "2026-04-06",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC004.pdf",
+  },
+  {
+    srNo: 5,
+    vcNumber: "VC-2024-005",
+    vehicleDescription: "Maruti Suzuki Swift VXi",
+    baseVc: "BVC-MSW-005",
+    vehicleDetails: "12V",
+    noOfGears: "5",
+    wheelBase: "2450 mm",
+    maxSpeed: "175",
+    abs: "Yes",
+    pedalForce: "195",
+    lrBalanceFront: "62/38",
+    cruiseControl: "No",
+    normalBrakeForeFront: "3100",
+    normalBrakeForceRear: "1800",
+    wheelDragForceFront: "140",
+    wheelDragForceRear: "95",
+    parkingBrakeForce: "3800",
+    addedBy: "P. Nair",
+    date: "2026-04-05",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC005.pdf",
+  },
+  {
+    srNo: 6,
+    vcNumber: "VC-2024-006",
+    vehicleDescription: "Eicher Pro 6016",
+    baseVc: "BVC-EI-006",
+    vehicleDetails: "24V",
+    noOfGears: "9",
+    wheelBase: "4800 mm",
+    maxSpeed: "90",
+    abs: "—",
+    pedalForce: "—",
+    lrBalanceFront: "—",
+    cruiseControl: "—",
+    normalBrakeForeFront: "—",
+    normalBrakeForceRear: "—",
+    wheelDragForceFront: "—",
+    wheelDragForceRear: "—",
+    parkingBrakeForce: "—",
+    addedBy: "—",
+    date: "2026-04-05",
+    status: "failed",
+    sourceFile: "brake_test_batch_01_VC006_damaged.pdf",
+  },
+  {
+    srNo: 7,
+    vcNumber: "VC-2024-007",
+    vehicleDescription: "Honda City 5th Gen",
+    baseVc: "BVC-HC-007",
+    vehicleDetails: "12V",
+    noOfGears: "6",
+    wheelBase: "2600 mm",
+    maxSpeed: "190",
+    abs: "Yes",
+    pedalForce: "220",
+    lrBalanceFront: "61/39",
+    cruiseControl: "Yes",
+    normalBrakeForeFront: "3500",
+    normalBrakeForceRear: "1950",
+    wheelDragForceFront: "162",
+    wheelDragForceRear: "108",
+    parkingBrakeForce: "4100",
+    addedBy: "D. Iyer",
+    date: "2026-04-04",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC007.pdf",
+  },
+  {
+    srNo: 8,
+    vcNumber: "VC-2024-008",
+    vehicleDescription: "Force Traveller 3350",
+    baseVc: "BVC-FT-008",
+    vehicleDetails: "12V",
+    noOfGears: "5",
+    wheelBase: "3350 mm",
+    maxSpeed: "110",
+    abs: "No",
+    pedalForce: "420",
+    lrBalanceFront: "45/55",
+    cruiseControl: "No",
+    normalBrakeForeFront: "5800",
+    normalBrakeForceRear: "6200",
+    wheelDragForceFront: "260",
+    wheelDragForceRear: "280",
+    parkingBrakeForce: "8500",
+    addedBy: "M. Singh",
+    date: "2026-04-04",
+    status: "success",
+    sourceFile: "brake_test_batch_01_VC008.pdf",
+  },
 ];
 
-const columns = ["File", "Vehicle Number", "Engine Number", "Owner Name", "Status"];
+const columns = [
+  "Sr No",
+  "VC Number",
+  "Vehicle Description",
+  "Base VC",
+  "Vehicle Details (12V/24V)",
+  "No of Gears",
+  "Wheel Base",
+  "Max Speed (km/h)",
+  "ABS",
+  "Pedal Force (N)",
+  "L/R Balance % (Front)",
+  "Cruise Control",
+  "Normal Brake Force Front (N)",
+  "Normal Brake Force Rear (N)",
+  "Wheel Drag Force Front (N)",
+  "Wheel Drag Force Rear (N)",
+  "Parking Brake Force (N)",
+  "Added By",
+  "Date",
+];
+
+const rowValues = (row: ExtractionRow): string[] => [
+  row.srNo.toString(),
+  row.vcNumber,
+  row.vehicleDescription,
+  row.baseVc,
+  row.vehicleDetails,
+  row.noOfGears,
+  row.wheelBase,
+  row.maxSpeed,
+  row.abs,
+  row.pedalForce,
+  row.lrBalanceFront,
+  row.cruiseControl,
+  row.normalBrakeForeFront,
+  row.normalBrakeForceRear,
+  row.wheelDragForceFront,
+  row.wheelDragForceRear,
+  row.parkingBrakeForce,
+  row.addedBy,
+  row.date,
+];
 
 export default function ResultsPage() {
-  const handleExport = (format: string) => {
-    // Placeholder export logic
-    const csvContent = [
-      columns.join(","),
+  const successCount = sampleRows.filter((r) => r.status === "success").length;
+  const failedCount = sampleRows.filter((r) => r.status === "failed").length;
+
+  const handleExport = (fmt: string) => {
+    const sep = fmt === "csv" ? "," : "\t";
+    const content = [
+      ["Source File", ...columns, "Status"].join(sep),
       ...sampleRows.map((r) =>
-        [r.file, r.vehicle, r.engine, r.owner, r.status].join(",")
+        [r.sourceFile, ...rowValues(r), r.status].join(sep)
       ),
     ].join("\n");
 
-    const blob = new Blob([csvContent], {
-      type: format === "csv" ? "text/csv" : "text/tab-separated-values",
+    const blob = new Blob([content], {
+      type: fmt === "csv" ? "text/csv" : "text/tab-separated-values",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `extraction_results.${format === "csv" ? "csv" : "tsv"}`;
+    a.download = `brake_test_extraction.${fmt === "csv" ? "csv" : "tsv"}`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -49,7 +294,9 @@ export default function ResultsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Results</h2>
-          <p className="text-muted-foreground text-sm">Vehicle Registration Batch 13</p>
+          <p className="text-muted-foreground text-sm">
+            Brake Test Data — Vehicle Certification Batch 2024-01
+          </p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -69,49 +316,76 @@ export default function ResultsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Total Files" value={51} icon={FileText} />
-        <StatCard title="Successful" value={48} icon={CheckCircle} description="94.1% success rate" />
-        <StatCard title="Failed" value={3} icon={AlertCircle} description="Require review" />
+        <StatCard title="Total Files" value={sampleRows.length} icon={FileText} />
+        <StatCard
+          title="Successful"
+          value={successCount}
+          icon={CheckCircle}
+          description={`${((successCount / sampleRows.length) * 100).toFixed(1)}% success rate`}
+        />
+        <StatCard
+          title="Failed"
+          value={failedCount}
+          icon={AlertCircle}
+          description="Require manual review"
+        />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Extracted Data Preview</CardTitle>
+          <CardTitle className="text-lg">Extracted Brake Test Data</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-auto">
+          <div className="overflow-auto max-h-[600px]">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  <th className="sticky top-0 z-10 bg-muted px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-r last:border-r-0">
-                    #
+                  <th className="sticky top-0 z-10 bg-muted px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-r whitespace-nowrap">
+                    Source File
                   </th>
                   {columns.map((col) => (
                     <th
                       key={col}
-                      className="sticky top-0 z-10 bg-muted px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-r last:border-r-0"
+                      className="sticky top-0 z-10 bg-muted px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-r last:border-r-0 whitespace-nowrap"
                     >
                       {col}
                     </th>
                   ))}
+                  <th className="sticky top-0 z-10 bg-muted px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b whitespace-nowrap">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {sampleRows.map((row, i) => (
+                {sampleRows.map((row) => (
                   <tr
-                    key={i}
+                    key={row.srNo}
                     className="border-b last:border-b-0 hover:bg-accent/40 transition-colors"
                   >
-                    <td className="px-4 py-2 border-r text-muted-foreground tabular-nums">
-                      {i + 1}
+                    <td className="px-4 py-2.5 border-r font-mono text-xs text-muted-foreground whitespace-nowrap">
+                      {row.sourceFile}
                     </td>
-                    <td className="px-4 py-2 border-r font-medium">{row.file}</td>
-                    <td className="px-4 py-2 border-r font-mono text-xs">{row.vehicle}</td>
-                    <td className="px-4 py-2 border-r font-mono text-xs">{row.engine}</td>
-                    <td className="px-4 py-2 border-r">{row.owner}</td>
-                    <td className="px-4 py-2">
+                    {rowValues(row).map((val, i) => (
+                      <td
+                        key={i}
+                        className={`px-4 py-2.5 border-r whitespace-nowrap ${
+                          val === "—"
+                            ? "text-muted-foreground"
+                            : i === 1
+                            ? "font-medium"
+                            : i === 2
+                            ? "font-semibold"
+                            : ""
+                        }`}
+                      >
+                        {val}
+                      </td>
+                    ))}
+                    <td className="px-4 py-2.5">
                       <Badge
-                        variant={row.status === "success" ? "default" : "destructive"}
+                        variant={
+                          row.status === "success" ? "default" : "destructive"
+                        }
                         className="text-xs"
                       >
                         {row.status}
